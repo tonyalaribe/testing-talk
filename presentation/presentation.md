@@ -1,8 +1,11 @@
 autoscale: true
 
 ![fit,original](devopscon_pg.png)
+
+[.header: #152238, alignment(left)]
 # Testing in go: unit → end2end
 #### Or, How I think about testing in 2021
+##### Anthony Alaribe (@tonyalaribe)
 
 ---
 ## What will this talk Cover?
@@ -49,7 +52,6 @@ autoscale: true
 --- 
 ![fit,original](pyramid.png)
 
-##### Test pyramid
 ---
 
 ### Let's build an app
@@ -119,7 +121,9 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 --- 
 [.autoscale: true]
 
-Now have the the auth middleware  and the main function, 
+# Let's see the handler
+
+^ Now have the the auth middleware  and the main function, 
 we just need to implement the Handler
 
 ---
@@ -135,13 +139,13 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 
 	reqCtx, err := buildRequestContextAndValidate(r)
 	if err != nil {
-		fmt.Fprintf(w, "There ware a validation error; %v", err)
+		fmt.Fprintf(w, "There was a validation error; %v", err)
 		return
 	}
 
 	reqID, err := insertRequestToDB(ctx, reqCtx)
 	if err != nil {
-		fmt.Fprintf(w, "There ware an error inserting request; %v", err)
+		fmt.Fprintf(w, "There was an error inserting request; %v", err)
 		return
 	}
 
@@ -155,95 +159,27 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 }
 ```
 ---
-Let's see buildRequestContextAndValidate() 
-
----
-
-[.code-highlight: all]
-[.code-highlight: 10-11, 13]
-[.code-highlight: 17-21]
-``` go
-type requestCtx struct {
-	Name  string
-	Age   int
-	Email string
-}
-
-func buildRequestContextAndValidate(r *http.Request) (requestCtx, error) {
-	ageStr := r.URL.Query().Get("age")
-	age, err := strconv.Atoi(ageStr)
-	if err != nil {
-		return requestCtx{}, errors.Wrap(err, "age is not an integer")
-	}
-	if age < 18 {
-		return requestCtx{}, errors.New("user is below 18 yr")
-	}
-
-	return requestCtx{
-		Name:  r.URL.Query().Get("name"),
-		Age:   age,
-		Email: r.URL.Query().Get("email"),
-	}, nil
-}
-```
----
-## Next, the logic to send Notifications
-
----
-
-[.code-highlight: all]
-[.code-highlight: 2-6]
-[.code-highlight: 8-9]
-[.code-highlight: 11-13]
-```go
-func sendNotification(ctx context.Context, reqID int, reqCtx requestCtx, baseURL string) error {
-	res, err := req.Post(baseURL+"/mail", req.BodyJSON(req.Param{
-		"name":   reqCtx.Name,
-		"email":  reqCtx.Email,
-		"req_id": reqID,
-	}))
-
-	responseMap := map[string]interface{}{}
-	res.ToJSON(&responseMap)
-
-	if len(responseMap["email"].(string)) == 0 {
-		return errors.New("invalid response from notification provider")
-	}
-	return err
-}
-
-```
----
 
 Now how do we test this?
 
 --- 
 
 ## Unit Testing
+- Self contained
+- Fast to run
+- Easy to write
+- Faster feedback loops
+- Our stand in for REPL driven development
+- GO unit test support is 👍
 
 
 
-^ I love unit tests. They are usually self-contained tests, that test singular functionality separately from anything else. In Go, these are fast to run, and pretty much should rarely change after they have been written. If you assume the tests as a pyramid, then unit tests would be at the bottom and the largest group. 
+^ I love unit tests. 
+^ They are usually self-contained tests, that test singular functionality separately from anything else. 
+^ In Go, these are fast to run, and pretty much should rarely change after they have been written. 
+^ If you assume the tests as a pyramid, then unit tests would be at the bottom and the largest group. 
 ^ It is always a good idea to write more unit tests than the other tests, because unit tests are fast to run, and hence you get a faster feedback look. They are most important when working on individual functionality or units of logic, and can help you iterate on your implementations quickly, without having to reexecute the entire application. Those of us who are familiar with repl based development from the lisp/haskell world, would notice that unit testing can be used for similar benefits when developing.
 
----
-
-### Self contained
-
----
-### Fast to run
-
----
-### Easy to write
-
----
-### Faster feedback loops
-
---- 
-### Our stand in for REPL driven development
-
----
-## GO unit test support is 👍
 
 ---
 ### Recall
@@ -703,7 +639,19 @@ ok      github.com/deliveryhero/testing-talk    0.598s
 
 ```
 
+---
+## Recap
+- Unit tests for most things. Write a lot of them, then integration and End to
+  End tests
+- You can test in go without any special libraries. But libraries help
+- Leverage golden/cache files when testing against real world services
+- Tests are just code. You can do anything in tests.
 
 ---
+## Resources
+- https://golang.org/pkg/testing/
+- https://www.toptal.com/go/your-introductory-course-to-testing-with-go
 
+## Slides are Available at
+- https://github.com/tonyalaribe/testing-talk
 
