@@ -5,14 +5,28 @@ autoscale: true
 [.header: #152238, alignment(left)]
 # Testing in go: unit → end2end
 #### Or, How I think about testing in 2021
-##### Anthony Alaribe (@tonyalaribe)
+##### Anthony Alaribe (@tonialaribe)
 
 ---
 ## What will this talk Cover?
+
+^ Not every form of testing under the sun
+^ My perspective and experience
+^ Assumes some go knowledge
+
 ---
 ### What is *testing*?
+
+^ Every one agrees that all apps should be tested
+^ Investigation conducted to provide stakeholders with information about the quality of the software under test. - wikipedia
+
 ---
 ### Why should you care?
+
+^ Documentation
+^ Assurance/Confidence
+^ Beakon to detect breakage
+
 --- 
 ### Types of tests
 [.column]
@@ -39,15 +53,15 @@ autoscale: true
 
 ^ In this talk I will introduce you to all of these
 ^ Just kidding
+^ I will focus on my own experiences
 
 ---
 ### Types of Tests I actually write
 - Load tests
 - Profiling/Benchmarks
-
-- Unit tests
-- Integration tests
-- End to End tests
+- **Unit tests**
+- **Integration tests**
+- **End to End tests**
 
 --- 
 ![fit,original](pyramid.png)
@@ -401,11 +415,15 @@ func TestBuildRequestContextAndValidate(t *testing.T) {
 	}
 ```
 
+^ struct
+^ THe descriptions
+^ urltovalidate
+^ expectedError
+
 ---
 [.code-highlight: all]
 [.code-highlight: 1, 17]
 [.code-highlight: 2, 16]
-[.code-highlight: 1, 17]
 [.code-highlight: 3-8]
 [.code-highlight: 10-15]
 ```go
@@ -455,23 +473,16 @@ ok      ./devopscon-testing    0.025s
 
 ---
 
-### Usually involves talking to third party or external systems
+- Usually involves talking to third party or external systems
+- It would still involve testing almost individual units or groups of units.
+- How we write integration tests in Go
+- We just write tests :) 
 
 ^ But just going by the name, integration tests would usually check/test the integration with other systems. This can be database, can be msg queues or even just a third party service. Usually you need to spin up some extra infrastructure to deal with these kind of tests. Eg spinning up a test database or a mock server.
 
 ---
 
-### It would still involve testing almost individual units or groups of units.
-
---- 
-### How we write integration tests in Go
-
----
-### We just write tests :) 
-
----
-
-### Use `<filename>_integration_test.go` file extension
+Use `<filename>_integration_test.go` file extension
 
 ---
 ### Start the file with 
@@ -575,7 +586,7 @@ func TestSendNotification(t *testing.T) {
 ## BDD and e2e testing with Ginkgo/Gomega
 
 ---
-### Use `<filename>_integration_test.go` file extension
+### Use `<filename>_e2e_test.go` file extension
 
 ---
 ### Start the file with 
@@ -651,6 +662,7 @@ ok      github.com/deliveryhero/testing-talk    0.598s
 ## Resources
 - https://golang.org/pkg/testing/
 - https://www.toptal.com/go/your-introductory-course-to-testing-with-go
+- https://onsi.github.io/ginkgo
 
 ## Slides are Available at
 - https://github.com/tonyalaribe/testing-talk
